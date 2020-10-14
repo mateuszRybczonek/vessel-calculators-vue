@@ -2,7 +2,7 @@
   <div class="ma-4">
     <div class="d-flex">
       <WellheadData
-        :welhead-data="wellhead"
+        :wellhead-data="wellhead"
       />
 
       <ArrayConfigData
@@ -11,30 +11,7 @@
       />
     </div>
 
-    <v-card
-      class="mt-4"
-    >
-      <v-subheader>
-        <div class="overline">
-          Basic calculation
-        </div>
-      </v-subheader>
-      <v-list>
-        <v-list-item
-          v-for="item in basicCalculations"
-          :key="item.day"
-        >
-          <v-list-item-title>
-            <v-icon>{{ item.icon }}</v-icon>
-            {{ item.title }}
-          </v-list-item-title>
-
-          <v-list-item-subtitle class="text-right">
-            {{ item.value }} m
-          </v-list-item-subtitle>
-        </v-list-item>
-      </v-list>
-    </v-card>
+    <BasicCalculations  :data="basicCalculations" />
 
     <v-btn
       class="mt-6"
@@ -85,11 +62,13 @@ import {
 import ArrayData from '@/components/ArrayData.vue'
 import ArrayConfigData from '@/components/ArrayConfigData.vue'
 import WellheadData from '@/components/WellheadData.vue'
+import BasicCalculations from '@/components/BasicCalculations.vue'
 
 export default defineComponent({
   name: 'LBLArrayPlanning',
 
   components: {
+    BasicCalculations,
     ArrayData,
     ArrayConfigData,
     WellheadData
