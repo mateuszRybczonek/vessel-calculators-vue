@@ -55,31 +55,29 @@
   </v-card>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent, PropType } from '@vue/composition-api'
+import { WellheadConfig } from '@/types'
+
+export default defineComponent({
   name: 'BeaconsList',
 
   props: {
     configData: {
-      type: Object,
+      type: Object as PropType<WellheadConfig>,
       required: true
     }
   },
 
-  data () {
-    return {
-      rules: {
-        minAngle: v => (v >= 0) || 'Min angle is 0°',
-        maxAngle: v => (v <= 30) || 'Max angle is 30°',
-        startAngle: v => ((v >= 0) && (v <= 360)) || 'Start angle must be between 0° and 360°'
-      }
+  setup () {
+    const rules: object = {
+      minAngle: (value: number): boolean | string => (value >= 0) || 'Min angle is 0°',
+      maxAngle: (value: number): boolean | string => (value <= 30) || 'Max angle is 30°',
+      startAngle: (value: number): boolean | string =>
+        ((value >= 0) && (value <= 360)) || 'Start angle must be between 0° and 360°'
     }
+
+    return { rules }
   }
-}
+})
 </script>
-
-Relative depth [m]:
-1980
-
-Distance WH-Transponder [m]:
-Beacon's radius [m]:

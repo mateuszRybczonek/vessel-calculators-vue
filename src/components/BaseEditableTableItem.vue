@@ -40,8 +40,11 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent, ref } from '@vue/composition-api'
+import { Ref } from '@/types'
+
+export default defineComponent({
   name: 'BaseEditDialog',
 
   props: {
@@ -76,35 +79,41 @@ export default {
     }
   },
 
-  data () {
-    return {
-      snack: false,
-      snackColor: '',
-      snackText: '',
-      newValue: this.value,
-      initialValue: this.value
+  setup ({ value }, { emit }) {
+    const snack: Ref<boolean> = ref(false)
+    const snackColor: Ref<string> = ref('')
+    const snackText: Ref<string> = ref('')
+    const newValue: Ref<string | number> = ref(value)
+    const initialValue: Ref<string | number> = ref(value)
+
+    const input = (value: string | number): void => {
+      newValue.value = value
     }
-  },
 
-  methods: {
-    input (value) {
-      this.newValue = value
-    },
+    const save = (): void => {
+      snack.value = true
+      snackColor.value = 'success'
+      snackText.value = 'Data saved'
+      initialValue.value = newValue.value
+      emit('input', newValue.value)
+    }
 
-    save () {
-      this.snack = true
-      this.snackColor = 'success'
-      this.snackText = 'Data saved'
-      this.initialValue = this.newValue
-      this.$emit('input', this.newValue)
-    },
+    const cancel = (): void => {
+      snack.value = true
+      snackColor.value = 'error'
+      snackText.value = 'Cancelled'
+      newValue.value = initialValue.value
+    }
 
-    cancel () {
-      this.snack = true
-      this.snackColor = 'error'
-      this.snackText = 'Canceled'
-      this.newValue = this.initialValue
+    return {
+      snack,
+      snackColor,
+      snackText,
+      newValue,
+      input,
+      save,
+      cancel
     }
   }
-}
+})
 </script>

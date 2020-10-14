@@ -7,7 +7,7 @@
 
       <ArrayConfigData
         class="ml-4"
-        :config-data="config"
+        :config-data="wellheadConfig"
       />
     </div>
 
@@ -71,182 +71,205 @@
   </div>
 </template>
 
-<script>
-import ArrayData from '../components/ArrayData'
-import ArrayConfigData from '../components/ArrayConfigData'
-import WellheadData from '../components/WellheadData'
+<script lang="ts">
+import { defineComponent, computed, reactive } from '@vue/composition-api'
 
-export default {
+import {
+  Wellhead,
+  Beacon,
+  BeaconsArray,
+  BasicCalculationItem,
+  WellheadConfig
+} from '@/types'
+
+import ArrayData from '@/components/ArrayData.vue'
+import ArrayConfigData from '@/components/ArrayConfigData.vue'
+import WellheadData from '@/components/WellheadData.vue'
+
+export default defineComponent({
+  name: 'LBLArrayPlanning',
+
   components: {
     ArrayData,
     ArrayConfigData,
     WellheadData
   },
 
-  data () {
-    return {
-      wellhead: {
-        name: 'MAT-004',
-        northing: 2000000,
-        easting: 200000,
-        field: 'MAT',
-        date: '06/10/2020',
-        utmZone: 4
-      },
+  setup () {
+    const wellhead = reactive<Wellhead>({
+      name: 'MAT-004',
+      northing: 2000000,
+      easting: 200000,
+      field: 'MAT',
+      date: '06/10/2020',
+      utmZone: 4
+    })
 
-      arrays: [
-        {
-          id: 1,
-          name: 'Array 1',
-          beacons: [
-            {
-              id: 1,
-              serialNo: 1,
-              northing: '',
-              easting: '',
-              floatNo: 1,
-              range: '',
-              bearing: ''
-            },
-            {
-              id: 2,
-              serialNo: 2,
-              northing: '',
-              easting: '',
-              floatNo: 2,
-              range: '',
-              bearing: ''
-            },
-            {
-              id: 3,
-              serialNo: 3,
-              northing: '',
-              easting: '',
-              floatNo: 3,
-              range: '',
-              bearing: ''
-            },
-            {
-              id: 4,
-              serialNo: 4,
-              northing: '',
-              easting: '',
-              floatNo: 4,
-              range: '',
-              bearing: ''
-            }
-          ]
-        }
-      ],
-
-      config: {
-        startAngle: 0,
-        waterDepth: 2000,
-        transponderHeight: 5,
-        transducerDepth: 15,
-        verticalAngle: 10,
-        beaconAngleTreshold: 1
+    const arrays = reactive<BeaconsArray[]>([
+      {
+        id: 1,
+        name: 'Array 1',
+        beacons: [
+          {
+            id: 1,
+            serialNo: 'M01',
+            northing: 0,
+            easting: 0,
+            floatNo: 'F01',
+            range: 0,
+            bearing: 0
+          },
+          {
+            id: 2,
+            serialNo: 'M02',
+            northing: 0,
+            easting: 0,
+            floatNo: 'F02',
+            range: 0,
+            bearing: 0
+          },
+          {
+            id: 3,
+            serialNo: 'M03',
+            northing: 0,
+            easting: 0,
+            floatNo: 'F03',
+            range: 0,
+            bearing: 0
+          },
+          {
+            id: 4,
+            serialNo: 'M04',
+            northing: 0,
+            easting: 0,
+            floatNo: 'F04',
+            range: 0,
+            bearing: 0
+          }
+        ]
       }
-    }
-  },
+    ])
 
-  computed: {
-    basicCalculations () {
-      return [
-        { title: 'Relative depth', icon: 'mdi-arrow-expand-vertical', value: this.relativeDepth },
-        { title: 'Distance WH - Transponder', icon: 'mdi-arrow-expand-horizontal', value: this.distanceWHTransponder },
-        { title: "Beacon's Radius", icon: 'mdi-circle-expand', value: this.beaconsRadius }
-      ]
-    },
+    const wellheadConfig = reactive<WellheadConfig>({
+      startAngle: 0,
+      waterDepth: 2000,
+      transponderHeight: 5,
+      transducerDepth: 15,
+      verticalAngle: 10,
+      beaconAngleTreshold: 1
+    })
 
-    relativeDepth () {
-      const { waterDepth, transponderHeight, transducerDepth } = this.config
+    const relativeDepth = computed((): number => {
+      const { waterDepth, transponderHeight, transducerDepth } = wellheadConfig
       return waterDepth - transponderHeight - transducerDepth
-    },
+    })
 
-    distanceWHTransponder () {
-      return Math.round(this.relativeDepth * Math.sin(this.config.verticalAngle / (180 / Math.PI)))
-    },
-
-    beaconsRadius () {
-      const relativeDepth = this.relativeDepth
-      const { verticalAngle, beaconAngleTreshold } = this.config
+    const beaconsRadius = computed((): number => {
+      const { verticalAngle, beaconAngleTreshold } = wellheadConfig
 
       return (
-        Math.round(relativeDepth * Math.sin((Number(verticalAngle) + Number(beaconAngleTreshold)) / (180 / Math.PI))) -
-        Math.round(relativeDepth * Math.sin((Number(verticalAngle) - Number(beaconAngleTreshold)) / (180 / Math.PI)))
+        Math.round(relativeDepth.value * Math.sin((Number(verticalAngle) + Number(beaconAngleTreshold)) / (180 / Math.PI))) -
+        Math.round(relativeDepth.value * Math.sin((Number(verticalAngle) - Number(beaconAngleTreshold)) / (180 / Math.PI)))
       ) / 2
-    }
-  },
+    })
 
-  methods: {
-    addArray () {
-      this.arrays.push({
-        id: this.arrays.length + 1,
-        name: `Array ${this.arrays.length + 1}`,
+    const distanceWHTransponder = computed((): number => {
+      return Math.round(relativeDepth.value * Math.sin(wellheadConfig.verticalAngle / (180 / Math.PI)))
+    })
+
+    const basicCalculations = computed((): BasicCalculationItem[] => {
+      return [
+        { title: 'Relative depth', icon: 'mdi-arrow-expand-vertical', value: relativeDepth.value },
+        { title: 'Distance WH - Transponder', icon: 'mdi-arrow-expand-horizontal', value: distanceWHTransponder.value },
+        { title: "Beacon's Radius", icon: 'mdi-circle-expand', value: beaconsRadius.value }
+      ]
+    })
+
+    const addArray = (): void => {
+      arrays.push({
+        id: arrays.length + 1,
+        name: `Array ${arrays.length + 1}`,
         beacons: []
       })
-    },
+    }
 
-    removeArray ({ arrayId }) {
-      const index = this.arrays.findIndex((array) => array.id === arrayId)
+    const removeArray = ({ id }: { id: number }): void => {
+      const index = arrays.findIndex((array) => array.id === id)
+      arrays.splice(index, 1)
+    }
 
-      this.arrays.splice(index, 1)
-    },
+    const addBeacon = ({ arrayId }: { arrayId: number }): void => {
+      const array = arrays.find((array) => array.id === arrayId)
 
-    addBeacon ({ arrayId }) {
-      const array = this.arrays.find((array) => array.id === arrayId)
+      if (array) {
+        const newBeacon: Beacon = {
+          id: array.beacons.length + 1,
+          serialNo: '0',
+          northing: 0,
+          easting: 0,
+          floatNo: '0',
+          range: 0,
+          bearing: 0
+        }
 
-      array.beacons.push({
-        id: array.beacons.length + 1,
-        serialNo: 0,
-        northing: 0,
-        easting: 0,
-        floatNo: 0,
-        range: '',
-        bearing: ''
-      })
-    },
+        array.beacons.push(newBeacon)
+      }
+    }
 
-    removeBeacon ({ arrayId, beaconId }) {
-      const array = this.arrays.find((array) => array.id === arrayId)
-      const index = array.beacons.findIndex((beacon) => beacon.id === beaconId)
+    const removeBeacon = ({ arrayId, beaconId }: { arrayId: number; beaconId: number }): void => {
+      const array = arrays.find((array) => array.id === arrayId)
 
-      array.beacons.splice(index, 1)
-    },
+      if (array) {
+        const index = array.beacons.findIndex((beacon) => beacon.id === beaconId)
+        array.beacons.splice(index, 1)
+      }
+    }
 
-    calculate () {
-      const range = this.distanceWHTransponder
+    const calculate = (): void => {
+      const range = distanceWHTransponder.value
       let angleShift = 0
 
-      this.arrays.forEach((array, index) => {
+      arrays.forEach((array, index) => {
         if (index) {
           angleShift = 180 / array.beacons.length
         }
 
-        const beaconsCount = array.beacons.length
+        const beaconsCount: number = array.beacons.length
 
         array.beacons.map((beacon, index) => {
           beacon.range = range
 
-          const bearing = Math.round(angleShift + this.config.startAngle + 360 / beaconsCount * index)
+          const bearing: number = Math.round(angleShift + wellheadConfig.startAngle + 360 / beaconsCount * index)
           beacon.bearing = bearing
 
-          const dNorthing = Math.round(
-            Math.sqrt(range * Math.cos(bearing / (180 / Math.PI)) * (range * Math.cos(bearing / (180 / Math.PI))))
+          const dNorthing: number = Math.round(
+            Math.sqrt(+range * Math.cos(bearing / (180 / Math.PI)) * (+range * Math.cos(bearing / (180 / Math.PI))))
           )
 
           if (bearing < 90 || bearing > 270) {
-            beacon.northing = Math.round(this.wellhead.northing + dNorthing)
+            beacon.northing = Math.round(wellhead.northing + dNorthing)
           } else {
-            beacon.northing = Math.round(this.wellhead.northing - dNorthing)
+            beacon.northing = Math.round(wellhead.northing - dNorthing)
           }
 
-          const dEasting = Math.round(range * Math.sin(bearing / (180 / Math.PI)))
-          beacon.easting = Math.round(this.wellhead.easting + dEasting)
+          const dEasting = Math.round(+range * Math.sin(bearing / (180 / Math.PI)))
+          beacon.easting = Math.round(wellhead.easting + dEasting)
         })
       })
     }
+
+    return {
+      addArray,
+      removeArray,
+      addBeacon,
+      removeBeacon,
+      calculate,
+      wellhead,
+      arrays,
+      wellheadConfig,
+      basicCalculations,
+      distanceWHTransponder
+    }
   }
-}
+})
 </script>

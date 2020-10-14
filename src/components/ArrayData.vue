@@ -40,7 +40,7 @@
             <v-btn
               color="red darken-1"
               text
-              @click="$emit('removeArray', { arrayId: array.id })"
+              @click="$emit('removeArray', { id: array.id })"
             >
               Yes, delete it
             </v-btn>
@@ -112,45 +112,39 @@
   </v-card>
 </template>
 
-<script>
-import BaseEditableTableItem from './BaseEditableTableItem'
+<script lang="ts">
+import { defineComponent, computed, ref, PropType } from '@vue/composition-api'
+import { BeaconsArray, TableHeaderItem } from '@/types'
+import BaseEditableTableItem from './BaseEditableTableItem.vue'
 
-export default {
+export default defineComponent({
   name: 'BeaconsList',
 
   components: { BaseEditableTableItem },
 
   props: {
     array: {
-      type: Object,
+      type: Object as PropType<BeaconsArray>,
       required: true
     }
   },
 
-  data () {
-    return {
-      dialog: false,
-      max6digits: v => v.length <= 6 || 'Max 6 digits!',
-      pagination: {},
-      rules: {
-        required: value => !!value || 'Required.'
-      }
-    }
-  },
+  setup () {
+    const dialog = ref<boolean>(false)
+    const max6digits = (value: string): boolean | string => value.length <= 6 || 'Max 6 digits!'
 
-  computed: {
-    headers () {
-      return [
-        { text: 'Id', align: 'center', value: 'id' },
-        { text: 'Serial no.', align: 'center', value: 'serialNo' },
-        { text: 'Northing [m]', align: 'center', value: 'northing' },
-        { text: 'Easting [m]', align: 'center', value: 'easting' },
-        { text: 'Range from WH [m]', align: 'center', value: 'range' },
-        { text: 'Bearing from WH [°]', align: 'center', value: 'bearing' },
-        { text: 'Float no.', align: 'center', value: 'floatNo' },
-        { text: '', align: 'center', value: 'actions' }
-      ]
-    }
+    const headers = computed((): TableHeaderItem[] => [
+      { text: 'Id', align: 'center', value: 'id' },
+      { text: 'Serial no.', align: 'center', value: 'serialNo' },
+      { text: 'Northing [m]', align: 'center', value: 'northing' },
+      { text: 'Easting [m]', align: 'center', value: 'easting' },
+      { text: 'Range from WH [m]', align: 'center', value: 'range' },
+      { text: 'Bearing from WH [°]', align: 'center', value: 'bearing' },
+      { text: 'Float no.', align: 'center', value: 'floatNo' },
+      { text: '', align: 'center', value: 'actions' }
+    ])
+
+    return { dialog, headers, max6digits }
   }
-}
+})
 </script>

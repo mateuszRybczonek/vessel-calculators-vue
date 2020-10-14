@@ -39,7 +39,7 @@
       absolute
       permanent
     >
-      <v-list class="mt-12">
+      <v-list class="mt-14">
         <v-list-item
           v-for="item in items"
           :key="item.title"
@@ -65,18 +65,26 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent, computed } from '@vue/composition-api'
 
-export default Vue.extend({
+type SidebarItem = {
+  title: string;
+  icon: string;
+  href: string;
+}
+
+export default defineComponent({
   name: 'App',
 
-  data () {
-    return {
-      items: [
+  setup () {
+    const items = computed((): SidebarItem[] => {
+      return [
         { title: 'LBL Array Planning', icon: 'mdi-blur-radial', href: '/lbl-array-planning' },
         { title: 'TAT Calculator', icon: 'mdi-arrow-expand-vertical', href: '/tat-calculator' }
       ]
-    }
+    })
+
+    return { items }
   }
 })
 </script>

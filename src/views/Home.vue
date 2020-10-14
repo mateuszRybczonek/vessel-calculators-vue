@@ -22,24 +22,25 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { defineComponent, computed } from '@vue/composition-api'
 
-export default Vue.extend({
-  name: 'HelloWorld',
+type Card = {
+  title: string;
+  href: string;
+}
 
-  data () {
-    return {
-      cards: [
-        {
-          title: 'LBL Array Planning',
-          href: '/lbl-array-planning'
-        },
-        {
-          title: 'TAT Calculation',
-          href: '/'
-        }
+export default defineComponent({
+  name: 'Home',
+
+  setup () {
+    const cards = computed((): Card[] => {
+      return [
+        { title: 'LBL Array Planning', href: '/lbl-array-planning' },
+        { title: 'TAT Calculation', href: '/' }
       ]
-    }
+    })
+
+    return { cards }
   }
 })
 </script>
