@@ -265,7 +265,7 @@ export default defineComponent({
         array.beacons.map((beacon, index) => {
           beacon.range = range
 
-          const bearing: number = Math.round(angleShift + wellheadConfig.startAngle + 360 / beaconsCount * index)
+          const bearing: number = Math.round(angleShift + Number(wellheadConfig.startAngle) + 360 / beaconsCount * index)
           beacon.bearing = bearing
 
           const dNorthing: number = Math.round(
@@ -278,7 +278,7 @@ export default defineComponent({
             beacon.northing = Math.round(wellhead.northing - dNorthing)
           }
 
-          const dEasting = Math.round(+range * Math.sin(bearing / (180 / Math.PI)))
+          const dEasting = Math.round(+range * Math.sin(-bearing / (180 / Math.PI)))
           beacon.easting = Math.round(wellhead.easting + dEasting)
         })
       })
