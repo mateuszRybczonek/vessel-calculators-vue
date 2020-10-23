@@ -13,16 +13,6 @@
 
     <BasicCalculations  :data="basicCalculations" />
 
-    <v-btn
-      class="mt-6"
-      block
-      x-large
-      color="info"
-      @click="calculate"
-    >
-      Calculate Arrays
-    </v-btn>
-
     <ArrayData
       v-for="array in arrays"
       :key="array.id"
@@ -40,16 +30,69 @@
       absolute
       right
       x-small
-      class="mr-4 mt-6"
+      class="mr-4 mt-4"
       @click="addArray"
     >
       <v-icon>mdi-plus</v-icon>
     </v-btn>
+
+    <v-btn
+      class="mt-16"
+      block
+      x-large
+      color="info"
+      @click="calculate"
+    >
+      Calculate Arrays
+    </v-btn>
+
+    <div class="d-flex mt-6">
+      <ThreeDimensionalView
+        :key="viewIndex"
+        :arrays="arrays"
+        :beacons-radius="beaconsRadius"
+        :controllable="true"
+        :distanceWhTransponder="distanceWHTransponder"
+        :relative-depth="relativeDepth"
+        :wellhead="wellhead"
+        :camera-position="[0, 30, 0]"
+        :show-water-surface="false"
+        :show-vessel="false"
+        pan="horizontal"
+      />
+
+      <ThreeDimensionalView
+        :key="1000 + viewIndex * 1000"
+        :arrays="arrays"
+        :beacons-radius="beaconsRadius"
+        :allow-vertical-pan="false"
+        :controllable="true"
+        :distanceWhTransponder="distanceWHTransponder"
+        :relative-depth="relativeDepth"
+        :wellhead="wellhead"
+        :camera-position="[21, 1, 0]"
+        :camera-fov="100"
+        pan="vertical"
+        class="ml-4"
+      />
+    </div>
+
+    <ThreeDimensionalView
+      :key="2000 + viewIndex * 2000"
+      :arrays="arrays"
+      :beacons-radius="beaconsRadius"
+      :controllable="true"
+      :distanceWhTransponder="distanceWHTransponder"
+      :relative-depth="relativeDepth"
+      :wellhead="wellhead"
+      :camera-fov="100"
+      class="mt-8"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, reactive } from '@vue/composition-api'
+import { defineComponent, computed, reactive, ref } from '@vue/composition-api'
 
 import {
   Wellhead,
@@ -61,6 +104,7 @@ import {
 
 import ArrayData from '@/components/ArrayData.vue'
 import ArrayConfigData from '@/components/ArrayConfigData.vue'
+import ThreeDimensionalView from '@/components/ThreeDimensionalView.vue'
 import WellheadData from '@/components/WellheadData.vue'
 import BasicCalculations from '@/components/BasicCalculations.vue'
 
@@ -68,19 +112,22 @@ export default defineComponent({
   name: 'LBLArrayPlanning',
 
   components: {
-    BasicCalculations,
     ArrayData,
     ArrayConfigData,
+    BasicCalculations,
+    ThreeDimensionalView,
     WellheadData
   },
 
   setup () {
+    const viewIndex = ref<number>(0)
+
     const wellhead = reactive<Wellhead>({
       name: 'MAT-004',
       northing: 2000000,
       easting: 200000,
       field: 'MAT',
-      date: '06/10/2020',
+      date: '2020-10-06',
       utmZone: 4
     })
 
@@ -134,7 +181,7 @@ export default defineComponent({
       waterDepth: 2000,
       transponderHeight: 5,
       transducerDepth: 15,
-      verticalAngle: 10,
+      verticalAngle: 20,
       beaconAngleTreshold: 1
     })
 
@@ -235,6 +282,8 @@ export default defineComponent({
           beacon.easting = Math.round(wellhead.easting + dEasting)
         })
       })
+
+      viewIndex.value++
     }
 
     return {
@@ -247,7 +296,10 @@ export default defineComponent({
       arrays,
       wellheadConfig,
       basicCalculations,
-      distanceWHTransponder
+      relativeDepth,
+      distanceWHTransponder,
+      viewIndex,
+      beaconsRadius
     }
   }
 })

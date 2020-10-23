@@ -36,8 +36,9 @@
 
     <v-navigation-drawer
       mini-variant
-      absolute
+      fixed
       permanent
+      class="navigation-drawer"
     >
       <v-list class="mt-14">
         <v-list-item
@@ -92,6 +93,7 @@ export default defineComponent({
 <style scoped>
 .app-bar {
   user-select: none;
+  z-index: 9;
 }
 
 .app-title {
@@ -100,5 +102,9 @@ export default defineComponent({
 
 .highlighted {
   background-color: #BDBDBD;
+}
+
+.navigation-drawer {
+  z-index: 1;
 }
 </style>
