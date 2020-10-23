@@ -18,6 +18,15 @@ const routes: Array<RouteConfig> = [
       title: 'LBL Array Planning',
       icon: 'mdi-blur-radial'
     }
+  },
+  {
+    path: '/tat-calculator',
+    name: 'TATCalculator',
+    component: () => import(/* webpackChunkName: "tat-calculator" */ '../views/TATCalculator.vue'),
+    meta: {
+      title: 'TAT Calculator',
+      icon: 'mdi-blur-radial'
+    }
   }
 ]
 

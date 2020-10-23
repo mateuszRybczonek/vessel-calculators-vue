@@ -36,7 +36,7 @@ export default defineComponent({
     const cards = computed((): Card[] => {
       return [
         { title: 'LBL Array Planning', href: '/lbl-array-planning' },
-        { title: 'TAT Calculation', href: '/' }
+        { title: 'TAT Calculator', href: '/tat-calculator' }
       ]
     })
 
